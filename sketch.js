@@ -12,7 +12,7 @@ let depth = 0;
 let rootNode;
 let numOfContractions = 0;
 let currSelected = null;
-let z = true;
+let treeWidth = 100;
 
 // let tree = [5, 6, 9, 10, 4, 12, 11, 3, 20, 2, 7, 2, 14, 9, 10, 12, 13];
 // let tree = [5, 6, 9, 10, 4, 12, 11, 3, 20, 2, 7, 2, 14, 9, 10, 12, 13, 3, 5, 84, 6, 4, 12, 67, 7, 23, 15, 11, 16, 44, 22];
@@ -22,7 +22,6 @@ let tree = [8, 21, 17];
 document.addEventListener("mousedown", function() {
     mouse.click = true;
     console.log(mouseX, mouseY);
-    z = true;
     console.log(currSelected);
 });
 document.addEventListener('mouseup', function() {
@@ -40,94 +39,85 @@ async function setup() {
 
 
     background('lightblue');
-    // textSize(30);
     textAlign(CENTER);
 
-    // alignSlider = createSlider(0, 5, 1, 0.1);
-    // cohesionSlider = createSlider(0, 5, 1, 0.1);
-    // separationSlider = createSlider(0, 5, 1.2, 0.05);
-    // obsRadiSlider = createSlider(10, 30, 1, 5);
-
-    createTree(null, null, 30);
-    drawTree(rootNode, 30);
+    createTree(null, null, 4);
     console.log(rootNode);
 }
 
 function draw() {
     background('lightblue');
-    drawTree(rootNode, 30);
+    drawTree(rootNode, 150);
 
-    if (currSelected === null) {
-        z = 0;
-    }
     textSize(30);
     fill('black');
-    text(`Total number of contractions = ${numOfContractions}`, width / 2, height / 2);
-    document.addEventListener('keypress', function(event) {
-        if (z) {
-            if (currSelected != null) {
-                if (event.code === 'KeyA') {
-                    let weight = prompt("Please enter node weight");
-                    if (weight != null) {
-                        currSelected.weight = parseInt(weight);
-                    }
-                    console.log(currSelected);
-                    // }
-                    z = false;
-                }
-                if (event.code === 'KeyL') {
-                    if (currSelected.children.length == 0 || currSelected.children.length == 1) {
-                        console.log(currSelected);
-                        let newNode = new Node(currSelected.x - 100 / currSelected.depth, currSelected.y + 40, currSelected);
-                        newNode.depth = currSelected.depth + 1;
-                        currSelected.children.push(newNode);
-                    }
-                    z = false;
-                }
-                if (event.code === 'KeyR') {
-                    if (currSelected.children.length == 0 || currSelected.children.length == 1) {
-                        let newNode = new Node(currSelected.x + 100 / currSelected.depth, currSelected.y + 40, currSelected);
-                        newNode.depth = currSelected.depth + 1;
-                        currSelected.children.push(newNode);
-                    }
-                    z = false;
-                }
-                if (event.code === 'KeyD') {
-                    if (currSelected.children.length != 0) {
-                        currSelected.children.splice(0, 1);
-                    }
-                    z = false;
-                }
-                if (event.code === 'KeyC') {
-                    for (let gc of currSelected.children) {
-                        currSelected.parent.children.push(gc);
-                        gc.parent = currSelected.parent;
-                    }
-                    let i = currSelected.parent.children.indexOf(currSelected);
-                    console.log(i);
-                    currSelected.parent.children.splice(i, 1);
-                    numOfContractions++;
-                    z = false;
-                }
-            }
-        }
-    })
+    if (numOfContractions != 0)
+        text(`Total number of contractions = ${numOfContractions}`, width / 2, 110);
 
     document.getElementById("solvebtn").onclick = function() {
         background('lightblue');
         numOfContractions = 0;
         createMinHeap(rootNode);
-        // drawTree(rootNode, 30);
-        // textSize(30);
-        // fill('black');
-        // text(`Total number of contractions = ${numOfContractions}`, width / 2, height / 2);
-        console.log(rootNode);
-    };
-    document.getElementById("mkbinary").onclick = function() {
-        console.log("make binary");
         makeBinary(rootNode);
     };
+
+    textSize(20);
+    fill('red');
+    text("Insturctions:", 70, height - 200);
+    textSize(15)
+    fill('black')
+    text("R =>  To add right child", 120, height - 180);
+    text("L =>  To add left child", 115, height - 160);
+    text("C =>  To contract an edge", 130, height - 140);
+    text("D =>  To delete child node", 132, height - 120);
+    text("S =>  To set value of a node", 138, height - 100);
 }
+
+document.addEventListener('keyup', function(event) {
+    if (currSelected != null) {
+        if (event.code === 'KeyS') {
+            let weight = prompt("Please enter node weight");
+            if (weight != null) {
+                currSelected.weight = parseInt(weight);
+            }
+            console.log(currSelected);
+        }
+        if (event.code === 'KeyL') {
+            if (currSelected.children.length == 0 || currSelected.children.length == 1) {
+                console.log(currSelected);
+                let newNode = new Node(currSelected.x - treeWidth / currSelected.depth, currSelected.y + 40, currSelected);
+                newNode.depth = currSelected.depth + 1;
+                currSelected.children.push(newNode);
+            }
+        }
+        if (event.code === 'KeyR') {
+            if (currSelected.children.length == 0 || currSelected.children.length == 1) {
+                let newNode = new Node(currSelected.x + treeWidth / currSelected.depth, currSelected.y + 40, currSelected);
+                newNode.depth = currSelected.depth + 1;
+                currSelected.children.push(newNode);
+                console.log(currSelected.depth)
+                console.log(currSelected.y + 40);
+                console.log(currSelected);
+            }
+        }
+        if (event.code === 'KeyD') {
+            event.preventDefault();
+            if (currSelected.children.length != 0) {
+                currSelected.children.splice(0, 1);
+            }
+        }
+        if (event.code === 'KeyC') {
+            for (let gc of currSelected.children) {
+                currSelected.parent.children.push(gc);
+                gc.parent = currSelected.parent;
+            }
+            let i = currSelected.parent.children.indexOf(currSelected);
+            console.log(i);
+            currSelected.parent.children.splice(i, 1);
+            numOfContractions++;
+        }
+    }
+})
 
 function createMinHeap(parent) {
     for (let c of parent.children) {
@@ -145,11 +135,11 @@ function createMinHeap(parent) {
         }
     }
 }
+
 let n;
 
 function countNodes(parent) {
     n += parent.children.length;
-    console.log("kiki", n)
     for (let c of parent.children) {
         countNodes(c);
     }
@@ -192,18 +182,18 @@ function createTree(parent, side, drawHeight) {
         rootNode = new Node(width / 2, drawHeight, null);
         rootNode.children.push(createTree(rootNode, "left"));
         rootNode.children.push(createTree(rootNode, "right"));
-        rootNode.depth = 0;
+        rootNode.depth = 1;
         rootNode.weight = tree[0];
         nodes.push(rootNode);
     } else {
         // console.log("creating child");
         let newNode;
         if (side === "left") {
-            newNode = new Node(parent.x - 100 / parent.depth, parent.y + 40, parent);
+            newNode = new Node(parent.x - treeWidth / parent.depth, parent.y + 40, parent);
             newNode.index = (2 * parent.index) + 1;
         }
         if (side === "right") {
-            newNode = new Node(parent.x + 100 / parent.depth, parent.y + 40, parent);
+            newNode = new Node(parent.x + treeWidth / parent.depth, parent.y + 40, parent);
             newNode.index = (2 * parent.index) + 2;
         }
         // newNode = new Node(parent.x - 40, parent.y + 40, parent);
@@ -223,7 +213,9 @@ function createTree(parent, side, drawHeight) {
 }
 
 function drawTree(parent, ypos) {
-    parent.checkSelected();
+    if (mouse.click) {
+        parent.checkSelected(ypos);
+    }
     parent.draw(ypos);
     for (let c of parent.children)
         drawTree(c, ypos);
@@ -265,14 +257,16 @@ class Node {
         textSize(12)
         text(this.weight, this.x, this.y + yPosition + 3);
     }
-    checkSelected() {
-        if (Math.sqrt((this.x - mouse.x) * (this.x - mouse.x) + (this.y - mouse.y + 30) * (this.y - mouse.y + 30)) < this.radius - 10) {
+    checkSelected(yPosition) {
+        let y = this.y + yPosition;
+        if (Math.sqrt((this.x - mouse.x) * (this.x - mouse.x) + (y - mouse.y) * (y - mouse.y)) < this.radius - 10) {
             this.selected = true;
             currSelected = this;
+            return true;
         } else {
             if (this.selected) {
                 this.selected = false;
-                // currSelected = null;
+                return false;
             }
         }
     }
