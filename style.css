@@ -1,0 +1,14 @@
+.solvebtn {
+    position: absolute;
+    margin-left: 50%;
+}
+
+.mkbinary {
+    position: absolute;
+    margin-left: 35%;
+}
+
+canvas {
+    margin-top: 0px;
+    margin-left: 0px;
+}
